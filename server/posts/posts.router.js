@@ -16,8 +16,8 @@ router.get('/', async (req, res) => {
         ...post,
         images: [
           { url: 'https://picsum.photos/200/300' },
-          { url: 'https://picsum.photos/200/300' },
-          { url: 'https://picsum.photos/200/300' },
+          { url: 'https://picsum.photos/200/301' },
+          { url: 'https://picsum.photos/200/302' },
         ],
       },
     ];

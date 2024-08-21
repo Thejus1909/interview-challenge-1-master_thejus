@@ -55,11 +55,13 @@ const Button = styled.button(() => ({
   height: '50px',
 }));
 
-const PrevButton = styled(Button)`  
+const PrevButton = styled(Button)` 
+top: 40%; 
 left: 10px;
 `;
 
-const NextButton = styled(Button)`  
+const NextButton = styled(Button)`
+top: 40%;   
 right: 10px;
 `;
 
