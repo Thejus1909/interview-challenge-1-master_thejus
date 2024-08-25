@@ -65,7 +65,26 @@ top: 40%;
 right: 10px;
 `;
 
-const Post = ({ post }) => {
+const User = styled.div`
+display:flex;
+flexDirection:'row';
+margin: 10px;
+`;
+
+const UserName = styled.div(() => ({
+  display: 'grid',
+  marginLeft: '10px',
+}));
+
+const UserInitial = styled.div`
+background-color: grey;
+border-radius: 100%;
+padding: 15px;
+color:white;
+font-weight: 600;
+`;
+
+const Post = ({ post, user }) => {
   const carouselRef = useRef(null);
 
   const handleNextClick = () => {
@@ -86,8 +105,24 @@ const Post = ({ post }) => {
     }
   };
 
+  const getInitial = (fullName) => {
+    let initial = '';
+    const nameArray = fullName.split(' ');
+    for (let i = 0; i < nameArray.length; i++) {
+      initial += nameArray[i][0];
+    }
+    return initial;
+  }
+
   return (
     <PostContainer>
+      <User>
+        <UserInitial>{getInitial(user.name)}</UserInitial>
+        <UserName>
+          <h3>{user.name}</h3>
+          <div>{user.email}</div>
+        </UserName>
+      </User>
       <CarouselContainer>
         <Carousel ref={carouselRef}>
           {post.images.map((image, index) => (

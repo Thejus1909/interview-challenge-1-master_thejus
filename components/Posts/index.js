@@ -34,6 +34,7 @@ const LoadMoreButton = styled.button(() => ({
 
 export default function Posts() {
   const [posts, setPosts] = useState([]);
+  const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const { isSmallerDevice } = useWindowWidth();
@@ -45,8 +46,15 @@ export default function Posts() {
       });
       setPosts(posts);
     };
-
+    const fetchUsers = async () => {
+      const { data } = await axios.get('/api/v1/users');
+      const reducedUsers = data.reduce((acc, user) => {
+        return { ...acc, [user.id]: user }
+      }, {});
+      setUsers(reducedUsers);
+    }
     fetchPost();
+    fetchUsers();
   }, [isSmallerDevice]);
 
   const handleClick = () => {
@@ -61,7 +69,7 @@ export default function Posts() {
     <Container>
       <PostListContainer>
         {posts.map(post => (
-          <Post post={post} />
+          <Post post={post} user={users[post.userId]} />
         ))}
       </PostListContainer>
 
