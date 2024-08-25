@@ -1,9 +1,9 @@
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import Post from './Post';
 import Container from '../common/Container';
-import useWindowWidth from '../hooks/useWindowWidth';
+import { WindowContext } from '../contexts/WindowContext';
 
 const PostListContainer = styled.div(() => ({
   display: 'flex',
@@ -34,41 +34,53 @@ const LoadMoreButton = styled.button(() => ({
 
 export default function Posts() {
   const [posts, setPosts] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [start, setStart] = useState(0);
+  const [nextPostExists, setNextPostExists] = useState(true)
   const [isLoading, setIsLoading] = useState(false);
 
-  const { isSmallerDevice } = useWindowWidth();
+  const { isSmallerDevice } = useContext(WindowContext);
+  const limit = isSmallerDevice ? 5 : 10;
 
+  const fetchPost = async () => {
+    setIsLoading(true);
+    const { data: { posts: newPosts, nextPostExists } } = await axios.get('/api/v1/posts', {
+      params: { start, limit },
+    });
+    setPosts([...posts, ...newPosts]);
+    setNextPostExists(nextPostExists);
+    setIsLoading(false);
+  };
   useEffect(() => {
-    const fetchPost = async () => {
-      const { data: posts } = await axios.get('/api/v1/posts', {
-        params: { start: 0, limit: isSmallerDevice ? 5 : 10 },
-      });
-      setPosts(posts);
-    };
-
+    const fetchUsers = async () => {
+      const { data } = await axios.get('/api/v1/users');
+      const reducedUsers = data.reduce((acc, user) => {
+        return { ...acc, [user.id]: user }
+      }, {});
+      setUsers(reducedUsers);
+    }
     fetchPost();
-  }, [isSmallerDevice]);
+    fetchUsers();
+    setStart(start + limit)
+  }, []);
 
   const handleClick = () => {
-    setIsLoading(true);
-
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 3000);
+    setStart(start + limit)
+    fetchPost()
   };
 
   return (
     <Container>
       <PostListContainer>
         {posts.map(post => (
-          <Post post={post} />
+          <Post post={post} user={users[post.userId]} />
         ))}
       </PostListContainer>
 
       <div style={{ display: 'flex', justifyContent: 'center' }}>
-        <LoadMoreButton onClick={handleClick} disabled={isLoading}>
+        {nextPostExists && <LoadMoreButton onClick={handleClick} disabled={isLoading}>
           {!isLoading ? 'Load More' : 'Loading...'}
-        </LoadMoreButton>
+        </LoadMoreButton>}
       </div>
     </Container>
   );
