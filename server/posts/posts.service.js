@@ -19,14 +19,24 @@ async function fetchPosts(params) {
       },
     },
   );
-  let images = {}
-  for(let i = start ; i<=limit ; i++){
-  const { data } = await axios.get(
-    `https://jsonplaceholder.typicode.com/albums/${i}/photos`
+  const { data: nextPost } = await axios.get(
+    'https://jsonplaceholder.typicode.com/posts?limit',
+    {
+      params: {
+        _start: Number(start) + Number(limit),
+        _limit: 1,
+      },
+    },
   );
-  images[i] = data;
+  const nextPostExists = nextPost.length ? true : false;    // Checking if there are any more posts to retrieve  
+  let images = {}
+  for (let i = start; i <= Number(start) + Number(limit); i++) {
+    const { data } = await axios.get(
+      `https://jsonplaceholder.typicode.com/albums/${i}/photos`
+    );
+    images[i] = data;
   }
-  return {posts,images};
+  return { posts, images, nextPostExists };
 }
 
 module.exports = { fetchPosts };
